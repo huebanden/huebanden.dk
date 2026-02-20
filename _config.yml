@@ -1,0 +1,57 @@
+title: Huebanden
+description: >-
+  Huebanden.dk - officielt websted
+baseurl: ""
+url: "https://huebanden.dk"
+
+theme: minima
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+
+kramdown:
+  input: GFM
+  auto_ids: true
+
+# Permalink structure for posts
+permalink: /posts/:year/:month/:day/:title/
+
+# Plugins enabled on GitHub Pages
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+  - jekyll-sitemap
+
+# Default front matter
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      author: Huebanden
+  - scope:
+      path: "_pages"
+    values:
+      layout: page
+
+# Exclude from processing
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - node_modules
+  - vendor
+  - .bundle
+  - _templates
+  - README.md
+
+# Include hidden files if needed
+include:
+  - _pages
+
+# Minima theme settings
+minima:
+  skin: classic
+  social_links:
+    - { platform: github, user_url: "https://github.com/huebanden" }

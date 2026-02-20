@@ -1,0 +1,41 @@
+{% comment %}
+  Usage: {% include video.html url="https://www.youtube.com/watch?v=VIDEO_ID" %}
+  Or:    {% include video.html id="VIDEO_ID" platform="youtube" %}
+  Also supports: vimeo
+{% endcomment %}
+
+{%- assign platform = include.platform | default: "youtube" -%}
+{%- if include.url -%}
+  {%- if include.url contains "youtube.com/watch?v=" -%}
+    {%- assign video_id = include.url | split: "v=" | last | split: "&" | first -%}
+    {%- assign platform = "youtube" -%}
+  {%- elsif include.url contains "youtu.be/" -%}
+    {%- assign video_id = include.url | split: "youtu.be/" | last | split: "?" | first -%}
+    {%- assign platform = "youtube" -%}
+  {%- elsif include.url contains "vimeo.com/" -%}
+    {%- assign video_id = include.url | split: "vimeo.com/" | last | split: "?" | first -%}
+    {%- assign platform = "vimeo" -%}
+  {%- endif -%}
+{%- else -%}
+  {%- assign video_id = include.id -%}
+{%- endif -%}
+
+<div class="video-wrapper">
+  {%- if platform == "youtube" -%}
+  <iframe
+    src="https://www.youtube.com/embed/{{ video_id }}"
+    title="{{ include.title | default: 'YouTube video' }}"
+    frameborder="0"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+    allowfullscreen>
+  </iframe>
+  {%- elsif platform == "vimeo" -%}
+  <iframe
+    src="https://player.vimeo.com/video/{{ video_id }}"
+    title="{{ include.title | default: 'Vimeo video' }}"
+    frameborder="0"
+    allow="autoplay; fullscreen; picture-in-picture"
+    allowfullscreen>
+  </iframe>
+  {%- endif -%}
+</div>
