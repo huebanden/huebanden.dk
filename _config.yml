@@ -1,8 +1,8 @@
 title: Huebanden
 description: >-
   Huebanden.dk - officielt websted
-baseurl: "/huebanden.dk"
-url: "https://huebanden.github.io"
+baseurl: "/"
+url: "https://huebanden.dk"
 
 theme: minima
 
