@@ -10,10 +10,34 @@ layout: default
 
   {%- if site.posts.size > 0 -%}
   <h2 class="post-list-heading">Indlæg</h2>
-  <ul class="post-list">
+
+  <div class="post-search-filter">
+    <input
+      type="search"
+      id="post-search"
+      class="post-search-input"
+      placeholder="Søg i indlæg…"
+      aria-label="Søg i indlæg"
+      autocomplete="off"
+    />
+
+    {%- assign all_tags = site.posts | map: "tags" | join: "," | split: "," | uniq | sort -%}
+    {%- if all_tags.size > 0 -%}
+    <div class="tag-filter" role="group" aria-label="Filtrer efter tag">
+      <button class="tag-filter-btn active" data-tag="">Alle</button>
+      {%- for tag in all_tags -%}
+        {%- unless tag == "" -%}
+        <button class="tag-filter-btn" data-tag="{{ tag | escape }}">{{ tag | escape }}</button>
+        {%- endunless -%}
+      {%- endfor -%}
+    </div>
+    {%- endif -%}
+  </div>
+
+  <ul class="post-list" id="post-list">
     {%- assign sorted_posts = site.posts | sort: "date" | reverse -%}
     {%- for post in sorted_posts -%}
-    <li class="post-list-item">
+    <li class="post-list-item" data-title="{{ post.title | escape | downcase }}" data-tags="{{ post.tags | join: ',' | downcase }}" data-excerpt="{{ post.excerpt | strip_html | truncatewords: 50 | escape | downcase }}">
       <span class="post-meta">{{ post.date | date: "%d. %B %Y" }}</span>
       {%- if post.categories.size > 0 -%}
         &nbsp;&bull;&nbsp;
@@ -40,6 +64,59 @@ layout: default
     {%- endfor -%}
   </ul>
 
+  <p class="no-results-message" id="no-results" style="display:none;">Ingen indlæg matcher din søgning.</p>
+
   <p class="rss-subscribe">Abonner via <a href="{{ "/feed.xml" | relative_url }}">RSS</a></p>
   {%- endif -%}
 </div>
+
+<script>
+(function () {
+  var searchInput = document.getElementById('post-search');
+  var postList = document.getElementById('post-list');
+  var noResults = document.getElementById('no-results');
+  var tagButtons = document.querySelectorAll('.tag-filter-btn');
+
+  if (!searchInput || !postList) return;
+
+  var posts = Array.from(postList.querySelectorAll('.post-list-item')).map(function (el) {
+    return {
+      el: el,
+      title: el.getAttribute('data-title') || '',
+      tags: (el.getAttribute('data-tags') || '').split(',').map(function (t) { return t.trim(); }).filter(Boolean),
+      excerpt: el.getAttribute('data-excerpt') || ''
+    };
+  });
+  var activeTag = '';
+
+  function filterPosts() {
+    var query = searchInput.value.trim().toLowerCase();
+    var visibleCount = 0;
+
+    posts.forEach(function (post) {
+      var matchesSearch = !query || post.title.includes(query) || post.tags.join(',').includes(query) || post.excerpt.includes(query);
+      var matchesTag = !activeTag || post.tags.includes(activeTag.toLowerCase());
+
+      if (matchesSearch && matchesTag) {
+        post.el.style.display = '';
+        visibleCount++;
+      } else {
+        post.el.style.display = 'none';
+      }
+    });
+
+    noResults.style.display = visibleCount === 0 ? '' : 'none';
+  }
+
+  searchInput.addEventListener('input', filterPosts);
+
+  tagButtons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      tagButtons.forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      activeTag = btn.getAttribute('data-tag');
+      filterPosts();
+    });
+  });
+}());
+</script>
